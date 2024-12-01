@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detección del Estado de la Fruta</title>
-    <!-- Incluir p5.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+
     <!-- Incluir TensorFlow.js -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+
     <!-- Incluir Teachable Machine Image -->
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -31,58 +32,62 @@
     </style>
 </head>
 <body>
+
     <h1>Detección del Estado de la Fruta</h1>
     <p>Coloca la fruta frente a la cámara para detectar su estado.</p>
 
+    <!-- Contenedor donde se mostrará la webcam -->
     <div id="webcam-container"></div>
+    
+    <!-- Contenedor donde se mostrarán las predicciones -->
     <div id="label-container"></div>
+    
+    <!-- Botón para iniciar la detección -->
     <button type="button" onclick="init()">Iniciar detección</button>
 
     <script type="text/javascript">
-        // URL de tu modelo en GitHub Pages
-        const URL = "https://tu-usuario.github.io/Pera_modelo/"; // Cambia esto con tu URL
+        // URL del modelo de Teachable Machine
+        const URL = "./models/"; // Asegúrate de que esta sea la ruta correcta a tus archivos de modelo
 
         let model, webcam, labelContainer, maxPredictions;
 
-        // Función para cargar el modelo y configurar la cámara
+        // Función para inicializar el modelo y la cámara
         async function init() {
-            const modelURL = URL + "model.json";  // URL completa para el modelo
-            const metadataURL = URL + "metadata.json";  // URL completa para los metadatos
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
 
             // Cargar el modelo y los metadatos
             model = await tmImage.load(modelURL, metadataURL);
-            maxPredictions = model.getTotalClasses(); // Número de clases del modelo
+            maxPredictions = model.getTotalClasses();  // Obtiene la cantidad de clases de predicción
 
-            // Configuración de la cámara
-            const flip = true; // Hacer flip en la cámara (espejo)
-            webcam = new tmImage.Webcam(200, 200, flip);  // Definir resolución de la cámara
-            await webcam.setup();  // Solicitar acceso a la cámara
-            await webcam.play();  // Iniciar la cámara
-            window.requestAnimationFrame(loop);  // Bucle para predecir continuamente
+            // Función para configurar la webcam
+            const flip = true; // Si se desea voltear la imagen de la cámara
+            webcam = new tmImage.Webcam(200, 200, flip); // Configuración de la webcam
+            await webcam.setup(); // Solicitar acceso a la cámara
+            await webcam.play(); // Inicia la transmisión de video
+            window.requestAnimationFrame(loop); // Empieza el ciclo de actualización
 
-            // Agregar el canvas de la cámara al DOM
+            // Añadir la cámara al DOM
             document.getElementById("webcam-container").appendChild(webcam.canvas);
-
-            // Crear contenedores para cada clase del modelo
             labelContainer = document.getElementById("label-container");
-            for (let i = 0; i < maxPredictions; i++) {
+            for (let i = 0; i < maxPredictions; i++) { // Crear un contenedor para cada predicción
                 labelContainer.appendChild(document.createElement("div"));
             }
         }
 
-        // Bucle para actualizar la imagen de la cámara y hacer predicciones
+        // Función para actualizar la imagen de la webcam
         async function loop() {
-            webcam.update();  // Actualizar la imagen de la cámara
-            await predict();  // Realizar la predicción
-            window.requestAnimationFrame(loop);  // Continuar el bucle
+            webcam.update(); // Actualizar el cuadro de la webcam
+            await predict();
+            window.requestAnimationFrame(loop); // Continuar el ciclo
         }
 
-        // Función para predecir el estado de la fruta
+        // Función para hacer la predicción en base al modelo
         async function predict() {
-            const prediction = await model.predict(webcam.canvas);  // Predecir con la imagen de la cámara
+            const prediction = await model.predict(webcam.canvas); // Realiza la predicción en base a la imagen
             for (let i = 0; i < maxPredictions; i++) {
-                // Mostrar el nombre de la clase y la probabilidad
-                const classPrediction = prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+                const classPrediction =
+                    prediction[i].className + ": " + prediction[i].probability.toFixed(2); // Muestra la predicción y la probabilidad
                 labelContainer.childNodes[i].innerHTML = classPrediction;
             }
         }
