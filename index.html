@@ -1,59 +1,91 @@
-<div>Teachable Machine Image Model</div>
-<button type="button" onclick="init()">Start</button>
-<div id="webcam-container"></div>
-<div id="label-container"></div>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
-<script type="text/javascript">
-    // More API functions here:
-    // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
-
-    // the link to your model provided by Teachable Machine export panel
-    const URL = "https://teachablemachine.withgoogle.com/models/[...]";
-
-    let model, webcam, labelContainer, maxPredictions;
-
-    // Load the image model and setup the webcam
-    async function init() {
-        const modelURL = URL + "model.json";
-        const metadataURL = URL + "metadata.json";
-
-        // load the model and metadata
-        // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
-        // or files from your local hard drive
-        // Note: the pose library adds "tmImage" object to your window (window.tmImage)
-        model = await tmImage.load(modelURL, metadataURL);
-        maxPredictions = model.getTotalClasses();
-
-        // Convenience function to setup a webcam
-        const flip = true; // whether to flip the webcam
-        webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
-        await webcam.setup(); // request access to the webcam
-        await webcam.play();
-        window.requestAnimationFrame(loop);
-
-        // append elements to the DOM
-        document.getElementById("webcam-container").appendChild(webcam.canvas);
-        labelContainer = document.getElementById("label-container");
-        for (let i = 0; i < maxPredictions; i++) { // and class labels
-            labelContainer.appendChild(document.createElement("div"));
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detección del Estado de la Fruta</title>
+    <!-- Incluir p5.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <!-- Incluir TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <!-- Incluir Teachable Machine Image -->
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
         }
-    }
-
-    async function loop() {
-        webcam.update(); // update the webcam frame
-        await predict();
-        window.requestAnimationFrame(loop);
-    }
-
-    // run the webcam image through the image model
-    async function predict() {
-        // predict can take in an image, video or canvas html element
-        const prediction = await model.predict(webcam.canvas);
-        for (let i = 0; i < maxPredictions; i++) {
-            const classPrediction =
-                prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-            labelContainer.childNodes[i].innerHTML = classPrediction;
+        #webcam-container {
+            margin-top: 30px;
         }
-    }
-</script>
+        video {
+            width: 80%;
+            max-width: 640px;
+        }
+        #label-container {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Detección del Estado de la Fruta</h1>
+    <p>Coloca la fruta frente a la cámara para detectar su estado.</p>
+
+    <div id="webcam-container"></div>
+    <div id="label-container"></div>
+    <button type="button" onclick="init()">Iniciar detección</button>
+
+    <script type="text/javascript">
+        // URL de tu modelo en GitHub Pages
+        const URL = "https://tu-usuario.github.io/Pera_modelo/"; // Cambia esto con tu URL
+
+        let model, webcam, labelContainer, maxPredictions;
+
+        // Función para cargar el modelo y configurar la cámara
+        async function init() {
+            const modelURL = URL + "model.json";  // URL completa para el modelo
+            const metadataURL = URL + "metadata.json";  // URL completa para los metadatos
+
+            // Cargar el modelo y los metadatos
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses(); // Número de clases del modelo
+
+            // Configuración de la cámara
+            const flip = true; // Hacer flip en la cámara (espejo)
+            webcam = new tmImage.Webcam(200, 200, flip);  // Definir resolución de la cámara
+            await webcam.setup();  // Solicitar acceso a la cámara
+            await webcam.play();  // Iniciar la cámara
+            window.requestAnimationFrame(loop);  // Bucle para predecir continuamente
+
+            // Agregar el canvas de la cámara al DOM
+            document.getElementById("webcam-container").appendChild(webcam.canvas);
+
+            // Crear contenedores para cada clase del modelo
+            labelContainer = document.getElementById("label-container");
+            for (let i = 0; i < maxPredictions; i++) {
+                labelContainer.appendChild(document.createElement("div"));
+            }
+        }
+
+        // Bucle para actualizar la imagen de la cámara y hacer predicciones
+        async function loop() {
+            webcam.update();  // Actualizar la imagen de la cámara
+            await predict();  // Realizar la predicción
+            window.requestAnimationFrame(loop);  // Continuar el bucle
+        }
+
+        // Función para predecir el estado de la fruta
+        async function predict() {
+            const prediction = await model.predict(webcam.canvas);  // Predecir con la imagen de la cámara
+            for (let i = 0; i < maxPredictions; i++) {
+                // Mostrar el nombre de la clase y la probabilidad
+                const classPrediction = prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+                labelContainer.childNodes[i].innerHTML = classPrediction;
+            }
+        }
+    </script>
+</body>
+</html>
