@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detección del estado de la Pera</title>
+    <title>Detección de Impurezas en Miel</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
     <style>
@@ -45,6 +45,7 @@
                 const modelURL = URL + "model.json";
                 const metadataURL = URL + "metadata.json";
 
+                // Intentar cargar el modelo y los archivos de metadata
                 model = await tmImage.load(modelURL, metadataURL);
                 maxPredictions = model.getTotalClasses();
 
@@ -53,7 +54,7 @@
                 webcam = new tmImage.Webcam(200, 200, flip); // Dimensiones de la cámara
                 await webcam.setup(); // Solicitar acceso a la cámara
 
-                // Comprobar si el setup fue exitoso
+                // Comprobar si la cámara se ha cargado correctamente
                 if (webcam.loaded) {
                     await webcam.play();
                     window.requestAnimationFrame(loop);
