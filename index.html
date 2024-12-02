@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teachable Machine Image Model Pera</title>
+    <title>Teachable Machine Image Model</title>
     <style>
         /* Estilos generales */
         body {
@@ -44,6 +44,7 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            margin-top: 20px;  /* Asegura que el botón esté debajo de la cámara */
         }
 
         button:hover {
@@ -87,8 +88,8 @@
 
     <div class="container">
         <h1>Teachable Machine Image Model</h1>
-        <button type="button" onclick="init()">Iniciar</button>
         <div id="webcam-container"></div>
+        <button type="button" onclick="init()">Iniciar</button>
         <div id="label-container"></div>
     </div>
 
